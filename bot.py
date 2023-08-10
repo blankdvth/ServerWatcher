@@ -90,6 +90,7 @@ async def update(channel_id, message_id, address):
 class RefreshView(discord.ui.View):
     @discord.ui.button(style=discord.ButtonStyle.grey, label="Refresh")
     async def refresh_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        global config
         await update(config[interaction.message.id]["channel_id"], interaction.message.id, config[interaction.message.id]["address"])
         await interaction.response.defer()
 
