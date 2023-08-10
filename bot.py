@@ -87,7 +87,7 @@ async def update(channel_id, message_id, address):
 class RefreshView(discord.ui.View):
     def __init__(self, address):
         super().__init__(timeout=None)
-        self.add_item(discord.ui.Button(label="Open", style=discord.ButtonStyle.url, url=f"https://mcsrvstat.us/{address}"))
+        self.add_item(discord.ui.Button(label="Open", style=discord.ButtonStyle.url, url=f"https://mcsrvstat.us/server/{address}"))
 
     @discord.ui.button(style=discord.ButtonStyle.grey, label="Refresh")
     async def refresh_button(self, interaction: discord.Interaction, button: discord.ui.Button):
