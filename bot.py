@@ -54,7 +54,7 @@ async def update(channel_id, message_id, address):
 
     with open("data/config.json", "w") as f:
         dump(config, f)
-    players_str = f"***{status['players']['online']}/{status['players']['max']} online***\n" + "\n".join([f"- {player['name']}" for player in status['players']['list']])
+    players_str = f"***{status['players']['online']}/{status['players']['max']} online***\n" + ("\n".join([f"- {player['name']}" for player in status['players']['list']]) if "list" in status['players'] else "")
     if len(players_str) > 4090:
         players_str = players_str[:4090] + "\n..."
     embed = discord.Embed(
