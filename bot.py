@@ -85,6 +85,10 @@ async def update(channel_id, message_id, address):
 
 
 class RefreshView(discord.ui.View):
+    def __init__(self, address):
+        super().__init__(timeout=None)
+        self.add_item(discord.ui.Button(label="Open", style=discord.ButtonStyle.url, url=f"https://mcsrvstat.us/{address}"))
+
     @discord.ui.button(style=discord.ButtonStyle.grey, label="Refresh")
     async def refresh_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         await update(config[str(interaction.message.id)]["channel_id"], interaction.message.id, config[str(interaction.message.id)]["address"])
@@ -97,7 +101,7 @@ async def on_ready():
         try:
             channel = client.get_channel(data["channel_id"])
             message = await channel.fetch_message(message_id)
-            await message.edit(view=RefreshView(timeout=None))
+            await message.edit(view=RefreshView(data["address"]))
         except (Exception,):
             continue
     await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="MC servers (sw?watch)"))
@@ -119,7 +123,7 @@ async def watch(ctx: commands.Context, *, address: str):
     config[str(message.id)] = {"address": address, "channel_id": message.channel.id}
     with open("data/config.json", "w") as f:
         dump(config, f)
-    await message.edit(view=RefreshView(timeout=None))
+    await message.edit(view=RefreshView(address))
     await update(message.channel.id, message.id, address)
 
 
