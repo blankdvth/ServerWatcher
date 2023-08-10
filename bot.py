@@ -97,7 +97,6 @@ class RefreshView(discord.ui.View):
 
 @client.event
 async def on_ready():
-    await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="MC servers (sw?watch)"))
     for message_id, data in config.items():
         try:
             channel = client.get_channel(data["channel_id"])
@@ -105,6 +104,7 @@ async def on_ready():
             await message.edit(view=RefreshView(timeout=None))
         except (Exception,):
             continue
+    await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="MC servers (sw?watch)"))
     update_loop.start()
     print("Bot is ready")
 
