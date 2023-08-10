@@ -112,7 +112,7 @@ async def update_loop():
 
 
 @client.hybrid_command()
-async def watch(ctx: commands.Context, address: str):
+async def watch(ctx: commands.Context, *, address: str):
     message = await ctx.send("*Processing*")
     if not get_status(address):
         return await message.edit(content=":x: An error has occurred. Check your server address or try again later.")
