@@ -42,19 +42,16 @@ async def update(channel_id, message_id, address):
         channel = client.get_channel(channel_id)
         message = await channel.fetch_message(message_id)
     except (Exception,):
-        config[message_id]["error_count"] += 1
-        if config[message_id]["error_count"] >= 10:
-            print(f"Deleted {message_id} after 10 consecutive fails")
-            del config[message_id]
-            with open("data/config.json", "w") as f:
-                dump(config, f)
+        print(f"Deleted {message_id}, unreachable")
+        del config[str(message_id)]
+        with open("data/config.json", "w") as f:
+            dump(config, f)
         return
 
     status = get_status(address)
     if status is None:
         return await message.edit(content="", embed=discord.Embed(title=f":x: {address}"))
 
-    config[message_id]["error_count"] = 0
     with open("data/config.json", "w") as f:
         dump(config, f)
     players_str = f"***{status['players']['online']}/{status['players']['max']} online***\n" + "\n".join([f"- {player['name']}" for player in status['players']['list']])
@@ -90,8 +87,7 @@ async def update(channel_id, message_id, address):
 class RefreshView(discord.ui.View):
     @discord.ui.button(style=discord.ButtonStyle.grey, label="Refresh")
     async def refresh_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        global config
-        await update(config[interaction.message.id]["channel_id"], interaction.message.id, config[interaction.message.id]["address"])
+        await update(config[str(interaction.message.id)]["channel_id"], interaction.message.id, config[str(interaction.message.id)]["address"])
         await interaction.response.defer()
 
 
@@ -111,8 +107,8 @@ async def on_ready():
 
 @tasks.loop(minutes=5)
 async def update_loop():
-    for message_id, data in config.items():
-        await update(data["channel_id"], message_id, data["address"])
+    for channel_id, message_id, address in [(v["channel_id"], k, v["address"]) for k, v in config.items()]:
+        await update(channel_id, message_id, address)
 
 
 @client.hybrid_command()
@@ -120,7 +116,7 @@ async def watch(ctx: commands.Context, address: str):
     message = await ctx.send("*Processing*")
     if not get_status(address):
         return await message.edit(content=":x: An error has occurred. Check your server address or try again later.")
-    config[message.id] = {"address": address, "channel_id": message.channel.id, "error_count": 0}
+    config[str(message.id)] = {"address": address, "channel_id": message.channel.id}
     with open("data/config.json", "w") as f:
         dump(config, f)
     await message.edit(view=RefreshView(timeout=None))
