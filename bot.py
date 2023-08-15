@@ -79,7 +79,9 @@ async def update(channel_id, message_id, address):
         if len(mods_str) > 1020:
             mods_str = mods_str[:1020] + "..."
         embed.add_field(name=f"Mods ({len(status['mods'])})", value=mods_str, inline=False)
-    embed.add_field(name="Updated", value=f"<t:{int(time())}:R>", inline=False)
+    if "debug" in status and "cachetime" in status["debug"]:
+        embed.add_field(name="Cached", value=f"<t:{status['debug']['cachetime']}:R>")
+    embed.add_field(name="Updated", value=f"<t:{int(time())}:R>")
 
     await message.edit(content="", embed=embed)
 
